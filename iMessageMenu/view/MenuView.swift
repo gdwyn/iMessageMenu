@@ -8,14 +8,17 @@
 import SwiftUI
 
 struct MenuView: View {
-    @EnvironmentObject var viewModel: MessageViewModel
-
+    @State private var scrollRect: CGRect = .zero
+    
     var body: some View {
-        
-            ScrollView(.vertical, showsIndicators: false) {
+        GeometryReader {
+            let size = $0.size
+            
+            VStack(alignment: .leading, spacing: 0) {
+                Spacer()
                 
-                VStack(alignment: .leading, spacing: 0) {
-                    Spacer()
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: -10) {
                     ForEach(1..<13) { index in
                         Button {
                             
@@ -30,27 +33,35 @@ struct MenuView: View {
                                 Spacer()
                             }
                         }
+                        .elasticScrol(scrollRect: scrollRect, screenSize: size)
                         .containerRelativeFrame(.vertical, count: 6, spacing: 0)
                         .scrollTransition { content, phase in
                             content
-                                .blur(radius: phase.isIdentity ? 0 : 1)
-                                .opacity(phase.isIdentity ? 1 : 0)
-
+                              .blur(radius: phase.isIdentity ? 0 : 30)
+                            
                         }
                         
                     }
                 }
-                .scrollTargetLayout()
-                
-                .padding(.horizontal, 40)
+                    .padding(.bottom, 40)
+
+                    .scrollTargetLayout()
+                    .padding(.horizontal, 40)
+                    .offsetExtractor(coordinateSpace: "SCROLLVIEW") {
+                        scrollRect = $0
+                    }
+                    
+                    
+                }
+                .coordinateSpace(name: "SCROLLVIEW")
+                .scrollTargetBehavior(.paging)
+                //.defaultScrollAnchor(.bottomLeading)
+                .frame(height: UIScreen.main.bounds.height * 0.82)
+                .scrollClipDisabled()
                 
             }
-            .scrollTargetBehavior(.paging)
-            //.defaultScrollAnchor(.bottomLeading)
-            .frame(maxHeight: UIScreen.main.bounds.height * 0.7 )
-            .scrollClipDisabled()
-
-       }
+        }
+    }
 }
 
 #Preview {
