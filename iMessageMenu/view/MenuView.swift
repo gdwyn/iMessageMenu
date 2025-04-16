@@ -19,34 +19,34 @@ struct MenuView: View {
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: -10) {
-                    ForEach(1..<13) { index in
-                        Button {
-                            
-                        } label: {
-                            HStack {
-                                Circle()
-                                    .fill(Color.blue)
-                                    .frame(width: 34, height: 34)
-                                Text("Option \(index)")
-                                    .font(.title3)
+                        ForEach(1..<13) { index in
+                            Button {
                                 
-                                Spacer()
+                            } label: {
+                                HStack {
+                                    Circle()
+                                        .fill(Color.blue)
+                                        .frame(width: 34, height: 34)
+                                    Text("Option \(index)")
+                                        .font(.title3)
+                                    
+                                    Spacer()
+                                }
                             }
-                        }
-                        .elasticScrol(scrollRect: scrollRect, screenSize: size)
-                        .containerRelativeFrame(.vertical, count: 6, spacing: 0)
-                        .scrollTransition { content, phase in
-                            content
-                              .blur(radius: phase.isIdentity ? 0 : 30)
+                            .elasticScrol(scrollRect: scrollRect, screenSize: size)
+                            .containerRelativeFrame(.vertical, count: 6, spacing: 0)
+                            .scrollTransition { content, phase in
+                                content
+                                    .blur(radius: phase.isIdentity ? 0 : 30)
+                                
+                            }
                             
                         }
-                        
                     }
-                }
-                    .padding(.bottom, 40)
-
+                    .padding(.bottom, 52)
+                    .padding(.top, 56)
+                    .padding(.horizontal, 50)
                     .scrollTargetLayout()
-                    .padding(.horizontal, 40)
                     .offsetExtractor(coordinateSpace: "SCROLLVIEW") {
                         scrollRect = $0
                     }
