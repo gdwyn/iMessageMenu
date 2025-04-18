@@ -11,13 +11,26 @@ struct ChatView: View {
     @EnvironmentObject var viewModel: MessageViewModel
     @Namespace private var animation
         
+    @State var highlightedChat: Message?
+    @State var showHighlight = false
+    
     public var body: some View {
         ZStack(alignment: .bottom) {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 8) {
                         ForEach(viewModel.messages) { message in
-                            MessageBubble(msg: message, animation: animation)
+                            MessageBubble(msg: message, animation: animation, showHighlight: $showHighlight)
+                                .anchorPreference(key: BoundsPreference.self, value: .bounds, transform: {
+                                    anchor in
+                                    return [message.id.uuidString: anchor]
+                                })
+                                .onLongPressGesture {
+                                    withAnimation(.easeInOut) {
+                                        showHighlight = true
+                                        highlightedChat = message
+                                    }
+                                }
                         }
                     }
                     .padding()
@@ -32,6 +45,37 @@ struct ChatView: View {
                     withAnimation {
                         proxy.scrollTo(viewModel.messages.last?.id)
                     }
+                }
+            }
+            .overlay(content: {
+                if showHighlight {
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                        .environment(\.colorScheme, .dark)
+                        .foregroundStyle(.appBlack.opacity(0.5))
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                showHighlight = false
+                                highlightedChat = nil
+                            }
+                        }
+                    
+                }
+            })
+
+            .overlayPreferenceValue(BoundsPreference.self) { values in
+                if let highlightedChat, let preference = values.first(where: { item in
+                    item.key == highlightedChat.id.uuidString
+                }) {
+                    GeometryReader{ proxy in
+                        let rect = proxy[preference.value]
+                        MessageBubble(msg: highlightedChat, animation: animation, showLike: true, showHighlight: $showHighlight)
+                            .id(highlightedChat.id)
+                            .frame(width: rect.width, height: rect.height)
+                            .offset(x: rect.minX, y: rect.minY)
+                    }
+                    .transition(.asymmetric(insertion: .identity, removal: .offset(x: 1 )))
                 }
             }
             // convo
