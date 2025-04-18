@@ -20,17 +20,18 @@ struct ChatView: View {
                 ScrollView {
                     VStack(spacing: 8) {
                         ForEach(viewModel.messages) { message in
-                            MessageBubble(msg: message, animation: animation, showHighlight: $showHighlight)
-                                .anchorPreference(key: BoundsPreference.self, value: .bounds, transform: {
-                                    anchor in
-                                    return [message.id.uuidString: anchor]
-                                })
-                                .onLongPressGesture {
-                                    withAnimation(.easeInOut) {
-                                        showHighlight = true
-                                        highlightedChat = message
-                                    }
-                                }
+                           
+                                MessageBubble(msg: message, animation: animation, showHighlight: $showHighlight, highlightedChat: $highlightedChat)
+                                    .anchorPreference(key: BoundsPreference.self, value: .bounds, transform: {
+                                        anchor in
+                                        return [message.id.uuidString: anchor]
+                                    })
+                                    .onLongPressGesture {
+                                        withAnimation(.easeInOut) {
+                                            showHighlight = true
+                                            highlightedChat = message
+                                        }
+                            }
                         }
                     }
                     .padding()
@@ -55,10 +56,14 @@ struct ChatView: View {
                         .foregroundStyle(.appBlack.opacity(0.5))
                         .ignoresSafeArea()
                         .onTapGesture {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 showHighlight = false
+                            }
+
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                 highlightedChat = nil
                             }
+
                         }
                     
                 }
@@ -70,12 +75,13 @@ struct ChatView: View {
                 }) {
                     GeometryReader{ proxy in
                         let rect = proxy[preference.value]
-                        MessageBubble(msg: highlightedChat, animation: animation, showLike: true, showHighlight: $showHighlight)
+                        MessageBubble(msg: highlightedChat, animation: animation, showHighlight: $showHighlight, highlightedChat: $highlightedChat)
                             .id(highlightedChat.id)
                             .frame(width: rect.width, height: rect.height)
                             .offset(x: rect.minX, y: rect.minY)
                     }
-                    .transition(.asymmetric(insertion: .identity, removal: .offset(x: 1 )))
+                    .transition(.asymmetric(insertion: .identity, removal: .opacity))
+
                 }
             }
             // convo

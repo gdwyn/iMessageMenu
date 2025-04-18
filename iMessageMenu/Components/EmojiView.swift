@@ -28,6 +28,9 @@ struct EmojiView: View {
                             }
                         }
                     }
+                    .onTapGesture {
+                        onTap(emojis[index])
+                    }
             }
         }
         .padding(.horizontal, 15)
