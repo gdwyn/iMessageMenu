@@ -21,7 +21,7 @@ struct ChatView: View {
                     VStack(spacing: 8) {
                         ForEach(viewModel.messages) { message in
                            
-                                MessageBubble(msg: message, animation: animation, showHighlight: $showHighlight, highlightedChat: $highlightedChat)
+                            MessageBubble(msg: message, animation: animation, isSource: highlightedChat?.id != message.id, showHighlight: $showHighlight, highlightedChat: $highlightedChat)
                                     .anchorPreference(key: BoundsPreference.self, value: .bounds, transform: {
                                         anchor in
                                         return [message.id.uuidString: anchor]
@@ -75,7 +75,7 @@ struct ChatView: View {
                 }) {
                     GeometryReader{ proxy in
                         let rect = proxy[preference.value]
-                        MessageBubble(msg: highlightedChat, animation: animation, showHighlight: $showHighlight, highlightedChat: $highlightedChat)
+                        MessageBubble(msg: highlightedChat, animation: animation, isSource: true, showHighlight: $showHighlight, highlightedChat: $highlightedChat)
                             .id(highlightedChat.id)
                             .frame(width: rect.width, height: rect.height)
                             .offset(x: rect.minX, y: rect.minY)
