@@ -8,20 +8,32 @@
 import SwiftUI
 
 struct MenuView: View {
+    var animation: Namespace.ID
+    
+    @EnvironmentObject var viewModel: MessageViewModel
+    
     @State private var scrollRect: CGRect = .zero
+    @State private var scrollSpacing: CGFloat = 0.0
+    
+    @State private var animateItems = false
+    
     
     var body: some View {
         GeometryReader {
-            let size = $0.size
+            let size = $0.size // should be used with elastic scroll but im having issues with the elastic scroll thing
             
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 20) {
                 Spacer()
                 
                 ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: -10) {
+                    VStack(spacing: 34) {
                         ForEach(1..<13) { index in
+                            let blurRadius = animateItems ? 0.0 : (20.0 - CGFloat(index * 2))
+                            let offsetY = animateItems ? 0 : CGFloat((12 - index)) * 30
+                            let delay = Double(12 - index) * 0.03
+                            
                             Button {
-                                
+                                // action
                             } label: {
                                 HStack {
                                     Circle()
@@ -29,41 +41,76 @@ struct MenuView: View {
                                         .frame(width: 34, height: 34)
                                     Text("Option \(index)")
                                         .font(.title3)
-                                    
                                     Spacer()
                                 }
+                                .padding(.vertical, 4)
+                                .blur(radius: blurRadius)
+                                .offset(y: offsetY)
+                                .animation(.easeOut(duration: 0.2).delay(delay), value: animateItems)
+                                
                             }
-                            .elasticScrol(scrollRect: scrollRect, screenSize: size)
-                            .containerRelativeFrame(.vertical, count: 6, spacing: 0)
+//                            .elasticScrol(scrollRect: scrollRect, screenSize: size)
                             .scrollTransition { content, phase in
                                 content
                                     .blur(radius: phase.isIdentity ? 0 : 30)
-                                
+                                    .opacity(phase.isIdentity ? 1 : 0)
                             }
-                            
                         }
                     }
-                    .padding(.bottom, 52)
-                    .padding(.top, 56)
-                    .padding(.horizontal, 50)
-                    .scrollTargetLayout()
-                    .offsetExtractor(coordinateSpace: "SCROLLVIEW") {
-                        scrollRect = $0
-                    }
                     
-                    
+                    .frame(maxHeight: .infinity, alignment: .bottom)
                 }
+                .padding(.top, 130)
+                .padding(.horizontal, 34)
                 .coordinateSpace(name: "SCROLLVIEW")
-                .scrollTargetBehavior(.paging)
-                //.defaultScrollAnchor(.bottomLeading)
-                .frame(height: UIScreen.main.bounds.height * 0.82)
                 .scrollClipDisabled()
                 
+                
+                
+                Button {
+                    withAnimation(.spring(duration: 0.3)) {
+                        animateItems = false
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        withAnimation(.spring(duration: 0.3)) {
+                            viewModel.showMenu = false
+                        }
+                    }
+                    
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.title3)
+                        .foregroundStyle(.gray)
+                        .padding()
+                        .frame(width: 34, height: 34)
+                        .background(.gray.opacity(0.2), in: Circle())
+                        .padding(.horizontal, 34)
+                        .padding(.top, 10)
+                        .padding(.bottom, 13)
+                        .rotationEffect(.degrees(animateItems == false ? -145 : 0))
+                    
+                }
+                .matchedGeometryEffect(id: "XBUTTON", in: animation)
+                //x button
+            }
+            .frame(maxHeight: .infinity, alignment: .bottom)
+            
+        }
+        .onAppear {
+            DispatchQueue.main.async {
+                animateItems = true
+            }
+        }
+        .onDisappear {
+            DispatchQueue.main.async {
+                animateItems = false
+                viewModel.showMenu = false
             }
         }
     }
 }
 
-#Preview {
-    MenuView()
-}
+//#Preview {
+//    MenuView()
+//}

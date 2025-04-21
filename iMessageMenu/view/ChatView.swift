@@ -56,7 +56,7 @@ struct ChatView: View {
                         .foregroundStyle(.appBlack.opacity(0.5))
                         .ignoresSafeArea()
                         .onTapGesture {
-                            withAnimation(.easeInOut) {
+                            withAnimation(.spring) {
                                 showHighlight = false
                             }
 
@@ -84,26 +84,22 @@ struct ChatView: View {
 
                 }
             }
-            // convo
+            // chat
             
             if viewModel.showMenu {
-                 Color.appBlack.opacity(0.1)
+                Rectangle()
+                    .fill(.appBlack.opacity(0.1))
                     .frame(alignment: .bottomLeading)
                     .background(.ultraThinMaterial)
                      .contentShape(Rectangle())
-                     .onTapGesture {
-                         withAnimation(.bouncy(duration: 0.5)) {
-                             viewModel.showMenu.toggle()
-                         }
-                     }
                      .ignoresSafeArea()
                      .zIndex(1)
              }
             // + bg blur
             
             if viewModel.showMenu {
-                MenuView()
-                    .transition(.opacity.combined(with: .move(edge: .bottom)).combined(with: .move(edge: .leading)).combined(with: .scale))
+                MenuView(animation: animation)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
                     .frame(alignment: .bottomLeading)
                     .zIndex(2)
             }

@@ -15,11 +15,11 @@ struct AppTextfield: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: viewModel.showMenu == true ? 40 : 12) {
+        HStack(alignment: .bottom, spacing: viewModel.showMenu == true ? 80 : 12) {
             Button {
                 isFocused = false
 
-                withAnimation(.bouncy(duration: 0.5)) {
+                withAnimation(.spring(duration: 0.3)) {
                     viewModel.showMenu.toggle()
                 }
             } label: {
@@ -29,8 +29,9 @@ struct AppTextfield: View {
                     .padding()
                     .frame(width: 34, height: 34)
                     .background(.gray.opacity(0.2), in: Circle())
+                    .rotationEffect(.degrees(viewModel.showMenu == false ? 0 : -70))
             }
-            
+            .matchedGeometryEffect(id: "XBUTTON", in: animation)
             
             HStack(alignment: .bottom) {
                 HStack {
