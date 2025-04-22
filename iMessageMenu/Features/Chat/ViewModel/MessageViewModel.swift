@@ -20,6 +20,7 @@ class MessageViewModel: ObservableObject {
     var text = ""
     var sentMessage: Message?
     var showMenu = false
+    var showSpeech = false
 
     func submit() {
         guard !text.isEmpty else { return }

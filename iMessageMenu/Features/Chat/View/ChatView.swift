@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ChatView: View {
-    @EnvironmentObject var viewModel: MessageViewModel
+    @EnvironmentObject var messageVM: MessageViewModel
     @Namespace private var animation
         
     @State var highlightedChat: Message?
@@ -19,7 +19,7 @@ struct ChatView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 8) {
-                        ForEach(viewModel.messages) { message in
+                        ForEach(messageVM.messages) { message in
                            
                             MessageBubble(msg: message, animation: animation, isSource: highlightedChat?.id != message.id, showHighlight: $showHighlight, highlightedChat: $highlightedChat)
                                     .anchorPreference(key: BoundsPreference.self, value: .bounds, transform: {
@@ -42,9 +42,9 @@ struct ChatView: View {
                 .safeAreaInset(edge: .bottom, spacing: 0) {
                     AppTextfield(proxy: proxy, animation: animation)
                 }
-                .onChange(of: viewModel.messages) {
+                .onChange(of: messageVM.messages) {
                     withAnimation {
-                        proxy.scrollTo(viewModel.messages.last?.id)
+                        proxy.scrollTo(messageVM.messages.last?.id)
                     }
                 }
             }
@@ -86,7 +86,7 @@ struct ChatView: View {
             }
             // chat
             
-            if viewModel.showMenu {
+            if messageVM.showMenu {
                 Rectangle()
                     .fill(.appBlack.opacity(0.1))
                     .frame(alignment: .bottomLeading)
@@ -95,15 +95,36 @@ struct ChatView: View {
                      .ignoresSafeArea()
                      .zIndex(1)
              }
-            // + bg blur
+            // + menu overlay blur
             
-            if viewModel.showMenu {
+            if messageVM.showSpeech {
+                Rectangle()
+                    .fill(.appBlack.opacity(0.7))
+                    .frame(alignment: .bottomLeading)
+                     .ignoresSafeArea()
+                     .onTapGesture {
+                         withAnimation(.easeInOut(duration: 0.2)) {
+                             messageVM.showSpeech.toggle()
+                         }
+                     }
+                     .zIndex(1)
+             }
+            // speech overlay
+            
+            if messageVM.showMenu {
                 MenuView(animation: animation)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                     .frame(alignment: .bottomLeading)
                     .zIndex(2)
             }
             // + menu
+            
+            if messageVM.showSpeech {
+                SpeechView()
+                    .transition(.opacity.combined(with: .scale(0, anchor: .bottom))
+                    )
+                    .zIndex(3)
+            }
             
        
 
