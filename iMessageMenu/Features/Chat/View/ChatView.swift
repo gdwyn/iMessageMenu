@@ -87,47 +87,15 @@ struct ChatView: View {
             // chat
             
             if messageVM.showMenu {
-                Rectangle()
-                    .fill(.appBlack.opacity(0.1))
-                    .frame(alignment: .bottomLeading)
-                    .background(.ultraThinMaterial)
-                     .contentShape(Rectangle())
-                     .ignoresSafeArea()
-                     .zIndex(1)
-             }
-            // + menu overlay blur
-            
-            if messageVM.showSpeech {
-                Rectangle()
-                    .fill(.appBlack.opacity(0.7))
-                    .frame(alignment: .bottomLeading)
-                     .ignoresSafeArea()
-                     .onTapGesture {
-                         withAnimation(.easeInOut(duration: 0.2)) {
-                             messageVM.showSpeech.toggle()
-                         }
-                     }
-                     .zIndex(1)
-             }
-            // speech overlay
-            
-            if messageVM.showMenu {
                 MenuView(animation: animation)
-                    .transition(.opacity.combined(with: .move(edge: .bottom)))
                     .frame(alignment: .bottomLeading)
-                    .zIndex(2)
             }
             // + menu
             
             if messageVM.showSpeech {
                 SpeechView()
-                    .transition(.opacity.combined(with: .scale(0, anchor: .bottom))
-                    )
-                    .zIndex(3)
             }
-            
-       
-
+            // speech
         }
     }
 }
