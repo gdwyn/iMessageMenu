@@ -10,17 +10,65 @@ import SwiftUI
 
 @Observable
 class MessageViewModel: ObservableObject {
+    var text: String = "" {
+        didSet {
+            handleInput(text)
+        }
+    }
     
     var messages = [
-        Message(direction: .incoming, kind: .text("")),
-        Message(direction: .outgoing, kind: .text("")),
-        Message(direction: .incoming, kind: .text(""))
+        Message(direction: .incoming, kind: .text("Hello")),
+        Message(direction: .outgoing, kind: .text("Hey")),
+        Message(direction: .incoming, kind: .text("Welcome"))
     ]
     
-    var text = ""
+    var filteredApps: [String] = []
+    var showSuggestions = false
+    
     var sentMessage: Message?
     var showMenu = false
     var showSpeech = false
+    
+    let allApps = ["$Solana", "@Ethereum", "$Bonk", "$Send", "$Jupiter", "$Retardio", "$Cloud", "$USDC", "$Fwog", "$Medusa", "$Ye"]
+
+    func handleInput(_ text: String) {
+        let pattern = #"\$\w*$"#
+        
+        guard let match = text.range(of: pattern, options: [.regularExpression, .caseInsensitive]) else {
+            withAnimation(.smooth) {
+                showSuggestions = false
+            }
+            return
+        }
+        
+        let matchedText = String(text[match])
+        let query = matchedText.replacingOccurrences(of: "$", with: "").lowercased()
+        
+        // 🛑 If the query starts with a digit, don’t show suggestions
+        if query.first?.isNumber == true {
+            withAnimation(.smooth) {
+                showSuggestions = false
+            }
+            return
+        }
+
+        filteredApps = query.isEmpty
+            ? allApps
+            : allApps.filter { $0.lowercased().contains(query) }
+
+        withAnimation(.smooth) {
+            showSuggestions = true
+        }
+    }
+
+    func insertApp(_ app: String) {
+        if let range = text.range(of: #"\$\w*$"#, options: .regularExpression) {
+            text.replaceSubrange(range, with: app)
+        }
+        withAnimation(.smooth) {
+            showSuggestions = false
+        }
+    }
 
     func submit() {
         guard !text.isEmpty else { return }

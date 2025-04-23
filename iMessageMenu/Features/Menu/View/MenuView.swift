@@ -20,6 +20,14 @@ struct MenuView: View {
     
     var body: some View {
         ZStack {
+            
+            Rectangle()
+                .fill(.appBlack.opacity(0.1))
+                .frame(alignment: .bottomLeading)
+                .background(.ultraThinMaterial)
+                 .contentShape(Rectangle())
+                 .ignoresSafeArea()
+            
             GeometryReader {
                 let size = $0.size // should be used with elastic scroll but im having issues with the elastic scroll thing
                 
@@ -114,13 +122,7 @@ struct MenuView: View {
         }
         .transition(.opacity.combined(with: .scale(scale: 0, anchor: .bottomLeading)))
         
-        Rectangle()
-            .fill(.appBlack.opacity(0.1))
-            .frame(alignment: .bottomLeading)
-            .background(.ultraThinMaterial)
-             .contentShape(Rectangle())
-             .ignoresSafeArea()
-             .zIndex(1)
+        
     }
 }
 
