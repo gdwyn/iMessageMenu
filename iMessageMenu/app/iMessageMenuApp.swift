@@ -11,12 +11,14 @@ import SwiftUI
 struct iMessageMenuApp: App {
     @State var messageVM = MessageViewModel()
     @State var speechVM = SpeechViewModel()
+    @State var tokenVM = TokenViewModel()
 
     var body: some Scene {
         WindowGroup {
             ChatView()
                 .environmentObject(messageVM)
                 .environmentObject(speechVM)
+                .environmentObject(tokenVM)
         }
     }
 }

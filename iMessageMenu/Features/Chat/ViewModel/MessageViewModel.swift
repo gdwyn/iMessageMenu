@@ -22,14 +22,14 @@ class MessageViewModel: ObservableObject {
         Message(direction: .incoming, kind: .text("Welcome"))
     ]
     
-    var filteredApps: [String] = []
+    var filteredCoins: [String] = []
     var showSuggestions = false
     
     var sentMessage: Message?
     var showMenu = false
     var showSpeech = false
     
-    let allApps = ["$Solana", "@Ethereum", "$Bonk", "$Send", "$Jupiter", "$Retardio", "$Cloud", "$USDC", "$Fwog", "$Medusa", "$Ye"]
+    let allCoins = ["$Solana", "$Ethereum", "$Bonk", "$Send", "$Jupiter", "$Retardio", "$Cloud", "$USDC", "$Fwog", "$Medusa", "$Ye"]
 
     func handleInput(_ text: String) {
         let pattern = #"\$\w*$"#
@@ -52,18 +52,18 @@ class MessageViewModel: ObservableObject {
             return
         }
 
-        filteredApps = query.isEmpty
-            ? allApps
-            : allApps.filter { $0.lowercased().contains(query) }
+        filteredCoins = query.isEmpty
+            ? allCoins
+            : allCoins.filter { $0.lowercased().contains(query) }
 
         withAnimation(.smooth) {
             showSuggestions = true
         }
     }
 
-    func insertApp(_ app: String) {
+    func insertCoin(_ coin: String) {
         if let range = text.range(of: #"\$\w*$"#, options: .regularExpression) {
-            text.replaceSubrange(range, with: app)
+            text.replaceSubrange(range, with: coin)
         }
         withAnimation(.smooth) {
             showSuggestions = false

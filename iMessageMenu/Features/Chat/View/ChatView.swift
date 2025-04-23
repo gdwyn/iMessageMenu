@@ -10,18 +10,19 @@ import SwiftUI
 struct ChatView: View {
     @EnvironmentObject var messageVM: MessageViewModel
     @Namespace private var animation
-        
+    
     @State var highlightedChat: Message?
     @State var showHighlight = false
     
     public var body: some View {
-        ZStack(alignment: .bottom) {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(spacing: 8) {
-                        ForEach(messageVM.messages) { message in
-                           
-                            MessageBubble(msg: message, animation: animation, isSource: highlightedChat?.id != message.id, showHighlight: $showHighlight, highlightedChat: $highlightedChat)
+        NavigationView {
+            ZStack(alignment: .bottom) {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: 8) {
+                            ForEach(messageVM.messages) { message in
+                                
+                                MessageBubble(msg: message, animation: animation, isSource: highlightedChat?.id != message.id, showHighlight: $showHighlight, highlightedChat: $highlightedChat)
                                     .anchorPreference(key: BoundsPreference.self, value: .bounds, transform: {
                                         anchor in
                                         return [message.id.uuidString: anchor]
@@ -31,71 +32,80 @@ struct ChatView: View {
                                             showHighlight = true
                                             highlightedChat = message
                                         }
+                                    }
                             }
                         }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .top)
+                        
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .top)
-                    
-                }
-                .scrollDismissesKeyboard(.interactively)
-                .safeAreaInset(edge: .bottom, spacing: 0) {
-                    AppTextfield(proxy: proxy, animation: animation)
-                }
-                .onChange(of: messageVM.messages) {
-                    withAnimation {
-                        proxy.scrollTo(messageVM.messages.last?.id)
+                    .scrollDismissesKeyboard(.interactively)
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
+                        AppTextfield(proxy: proxy, animation: animation)
                     }
-                }
-            }
-            .overlay(content: {
-                if showHighlight {
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .environment(\.colorScheme, .dark)
-                        .foregroundStyle(.appBlack.opacity(0.5))
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.spring) {
-                                showHighlight = false
-                            }
-
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                highlightedChat = nil
-                            }
-
+                    .onChange(of: messageVM.messages) {
+                        withAnimation {
+                            proxy.scrollTo(messageVM.messages.last?.id)
                         }
-                    
-                }
-            })
-
-            .overlayPreferenceValue(BoundsPreference.self) { values in
-                if let highlightedChat, let preference = values.first(where: { item in
-                    item.key == highlightedChat.id.uuidString
-                }) {
-                    GeometryReader{ proxy in
-                        let rect = proxy[preference.value]
-                        MessageBubble(msg: highlightedChat, animation: animation, isSource: true, showHighlight: $showHighlight, highlightedChat: $highlightedChat)
-                            .id(highlightedChat.id)
-                            .frame(width: rect.width, height: rect.height)
-                            .offset(x: rect.minX, y: rect.minY)
                     }
-                    .transition(.asymmetric(insertion: .identity, removal: .opacity))
-
+                }
+                .overlay(content: {
+                    if showHighlight {
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .environment(\.colorScheme, .dark)
+                            .foregroundStyle(.appBlack.opacity(0.5))
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                withAnimation(.spring) {
+                                    showHighlight = false
+                                }
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    highlightedChat = nil
+                                }
+                                
+                            }
+                        
+                    }
+                })
+                
+                .overlayPreferenceValue(BoundsPreference.self) { values in
+                    if let highlightedChat, let preference = values.first(where: { item in
+                        item.key == highlightedChat.id.uuidString
+                    }) {
+                        GeometryReader{ proxy in
+                            let rect = proxy[preference.value]
+                            MessageBubble(msg: highlightedChat, animation: animation, isSource: true, showHighlight: $showHighlight, highlightedChat: $highlightedChat)
+                                .id(highlightedChat.id)
+                                .frame(width: rect.width, height: rect.height)
+                                .offset(x: rect.minX, y: rect.minY)
+                        }
+                        .transition(.asymmetric(insertion: .identity, removal: .opacity))
+                        
+                    }
+                }
+                // chat
+                
+                if messageVM.showMenu {
+                    MenuView(animation: animation)
+                        .frame(alignment: .bottomLeading)
+                }
+                // + menu
+                
+                if messageVM.showSpeech {
+                    SpeechView()
+                }
+                // speech
+            }
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                ToolbarItem {
+                    NavigationLink("🪙 Eth") {
+                        TokenView()
+                    }
                 }
             }
-            // chat
-            
-            if messageVM.showMenu {
-                MenuView(animation: animation)
-                    .frame(alignment: .bottomLeading)
-            }
-            // + menu
-            
-            if messageVM.showSpeech {
-                SpeechView()
-            }
-            // speech
         }
     }
 }

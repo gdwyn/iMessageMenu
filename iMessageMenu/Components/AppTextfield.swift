@@ -23,10 +23,10 @@ struct AppTextfield: View {
                     Spacer()
                 ScrollView {
                     VStack {
-                        ForEach(messageVM.filteredApps, id: \.self) { app in
+                        ForEach(messageVM.filteredCoins, id: \.self) { app in
                             
                             Button {
-                                messageVM.insertApp(app)
+                                messageVM.insertCoin(app)
                             } label: {
                                 HStack(spacing: 12) {
                                     Image("bonk")
@@ -50,11 +50,11 @@ struct AppTextfield: View {
                             }
                         }
                     }
-                    .animation(.smooth(duration: 0.3), value: messageVM.filteredApps)
+                    .animation(.smooth(duration: 0.3), value: messageVM.filteredCoins)
                 }
                 .scrollIndicators(.hidden)
                 .scrollClipDisabled()
-                .frame(height: min(CGFloat(messageVM.filteredApps.count) * 50, 300)) // optional height cap
+                .frame(height: min(CGFloat(messageVM.filteredCoins.count) * 50, 300)) // optional height cap
                 .padding(.horizontal)
                 .padding(.top, 84)
 
