@@ -42,4 +42,5 @@ struct TokenView: View {
 
 #Preview {
     TokenView()
+        .environment(TokenViewModel())
 }

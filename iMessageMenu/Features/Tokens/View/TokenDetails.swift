@@ -38,36 +38,46 @@ struct TokenDetails: View {
                             
                         }
                     }
+                    .padding(.horizontal)
                     
                     HStack {
                         VStack(alignment: .leading) {
                             Text(tokenVM.currentToken.name)
+                                .font(.system(.title, design: .rounded))
                             Text("$1,792.84")
+                                .font(.system(.title3, design: .rounded))
                                 .foregroundStyle(.gray)
                         }
                         
                         Spacer()
                         Text("9.21%")
+                            .font(.system(.title3, design: .rounded))
                             .foregroundStyle(.green)
                     }
+                    .padding(.horizontal)
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundStyle(.textBlack)
                     
-                    RoundedRectangle(cornerRadius: 32, style: .circular)
-                        .fill(.appGray.opacity(0.5))
-                        .frame(height: 250)
+                    SparklineView(data: [2, 3, 1, 4, 2, 3, 4, 3, 2, 3, 3, 2.5, 3, 3])
+                        .frame(width:360, height: 240)
+                        .offset(x: -24)
+                        .padding(.top, 38)
                     
-                    RoundedRectangle(cornerRadius: 32, style: .circular)
-                        .fill(.appGray.opacity(0.5))
-                        .frame(height: 100)
-                    
-                    RoundedRectangle(cornerRadius: 32, style: .circular)
-                        .fill(.appGray.opacity(0.5))
-                        .frame(height: 100)
+                    VStack {
+                        RoundedRectangle(cornerRadius: 32, style: .circular)
+                            .fill(.appGray.opacity(0.5))
+                            .frame(height: 100)
+                        
+                        RoundedRectangle(cornerRadius: 32, style: .circular)
+                            .fill(.appGray.opacity(0.5))
+                            .frame(height: 100)
+                    }
+                    .padding(.horizontal)
+
                 }
             }
-            .padding()
+            .padding(.top)
             .scrollIndicators(.hidden)
         }
         .navigationBarBackButtonHidden()
@@ -76,4 +86,6 @@ struct TokenDetails: View {
 
 #Preview {
     TokenDetails(token: Token(name: "Eth", icon: "eth"))
+        .environment(TokenViewModel())
+
 }
