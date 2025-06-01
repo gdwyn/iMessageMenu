@@ -16,9 +16,10 @@ struct iMessageMenuApp: App {
     var body: some Scene {
         WindowGroup {
             ChatView()
-                .environmentObject(messageVM)
-                .environmentObject(speechVM)
-                .environmentObject(tokenVM)
+                .environment(messageVM)
+                .environment(speechVM)
+                .environment(tokenVM)
+                
         }
     }
 }

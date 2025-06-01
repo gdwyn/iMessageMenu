@@ -10,8 +10,8 @@ import SwiftUI
 struct MenuView: View {
     var animation: Namespace.ID
     
-    @EnvironmentObject var viewModel: MessageViewModel
-    
+    @Environment(MessageViewModel.self) var messageVM
+
     @State private var scrollRect: CGRect = .zero
     @State private var scrollSpacing: CGFloat = 0.0
     
@@ -85,7 +85,7 @@ struct MenuView: View {
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             withAnimation(.spring(duration: 0.3)) {
-                                viewModel.showMenu = false
+                                messageVM.showMenu = false
                             }
                         }
                         
@@ -116,7 +116,7 @@ struct MenuView: View {
             .onDisappear {
                 DispatchQueue.main.async {
                     animateItems = false
-                    viewModel.showMenu = false
+                    messageVM.showMenu = false
                 }
             }
         }

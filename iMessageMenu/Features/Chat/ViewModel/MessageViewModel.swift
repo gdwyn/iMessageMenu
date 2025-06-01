@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 @Observable
-class MessageViewModel: ObservableObject {
+class MessageViewModel {
     var text: String = "" {
         didSet {
             handleInput(text)

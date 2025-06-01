@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct ChatView: View {
-    @EnvironmentObject var messageVM: MessageViewModel
+    @Environment(MessageViewModel.self) var messageVM
+    @Environment(TokenViewModel.self) var tokenVM
+
     @Namespace private var animation
     
     @State var highlightedChat: Message?
@@ -97,6 +99,9 @@ struct ChatView: View {
                     SpeechView()
                 }
                 // speech
+            }
+            .task {
+                tokenVM.LoadCoins()
             }
             .navigationBarBackButtonHidden()
             .toolbar {

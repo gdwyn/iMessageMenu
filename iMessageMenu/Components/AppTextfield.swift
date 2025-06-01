@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppTextfield: View {
-    @EnvironmentObject var messageVM: MessageViewModel
+    @Environment(MessageViewModel.self) var messageVM
     var proxy: ScrollViewProxy
     var animation: Namespace.ID
     
@@ -16,6 +16,8 @@ struct AppTextfield: View {
     @State private var animateCoins = false
     
     var body: some View {
+        @Bindable var bindableMessageVM = messageVM
+        
         ZStack(alignment: .bottom) {
             
             if messageVM.showSuggestions {
@@ -88,7 +90,7 @@ struct AppTextfield: View {
                 
                 HStack(alignment: .bottom) {
                     HStack {
-                        TextField("iMessage", text: $messageVM.text, axis: .vertical)
+                        TextField("iMessage", text: $bindableMessageVM.text, axis: .vertical)
                             .padding(.horizontal)
                             .padding(.vertical, 8)
                             .focused($isFocused)

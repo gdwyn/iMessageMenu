@@ -5,23 +5,35 @@
 //  Created by gdwyn on 30/05/2025.
 //
 
-
 import SwiftUI
 
+// Updated SparklineView with callback
 struct SparklineView: View {
-    let data: [CGFloat]
+    let data: [Double] // Changed to Double to match your coin data
     @State private var dragX: CGFloat? = nil
     @State private var isDragging = false
-
+    
+    // Callback for price updates
+    let onPriceUpdate: ((Double, Double) -> Void)?
+    
+    init(data: [Double], onPriceUpdate: ((Double, Double) -> Void)? = nil) {
+        self.data = data
+        self.onPriceUpdate = onPriceUpdate
+    }
+    
+    // Convert to CGFloat for drawing
+    private var cgFloatData: [CGFloat] {
+        data.map { CGFloat($0) }
+    }
 
     var body: some View {
         GeometryReader { geometry in
             let width = geometry.size.width
             let height = geometry.size.height
-            let maxData = data.max() ?? 1
-            let minData = data.min() ?? 0
-            let stepX = width / CGFloat(data.count - 1)
-            let points: [CGPoint] = data.enumerated().map { index, value in
+            let maxData = cgFloatData.max() ?? 1
+            let minData = cgFloatData.min() ?? 0
+            let stepX = width / CGFloat(cgFloatData.count - 1)
+            let points: [CGPoint] = cgFloatData.enumerated().map { index, value in
                 let x = CGFloat(index) * stepX
                 let y = height - ((value - minData) / (maxData - minData)) * height
                 return CGPoint(x: x, y: y)
@@ -47,27 +59,25 @@ struct SparklineView: View {
             ZStack {
                 let activeX = isDragging ? (dragX ?? width) : points.last?.x ?? width
                 let trim = trimProgressForPath(for: activeX, on: path)
-                
-                ZStack {
+
                 path.trim(from: 0, to: 1)
-                    .stroke(Color.graphGray, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
+                    .stroke(Color.graphGray, style: StrokeStyle(lineWidth: 3.2, lineCap: .round, lineJoin: .round))
                 
                 path.trim(from: 0, to: trim)
-                    .stroke(Color.black, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
-            }
-                
+                    .stroke(Color.black, style: StrokeStyle(lineWidth: 3.2, lineCap: .round, lineJoin: .round))
+
                 // Default dot at the end (when not dragging)
                 if !isDragging, let lastPoint = points.last {
                     Circle()
                         .fill(Color.black)
-                        .frame(width: 18, height: 18)
+                        .frame(width: 16, height: 16)
                         .position(x: lastPoint.x, y: lastPoint.y)
                 }
                 
                 if isDragging, let lastPoint = points.last {
                     Circle()
                         .fill(.graphGray)
-                        .frame(width: 18, height: 18)
+                        .frame(width: 16, height: 16)
                         .position(x: lastPoint.x, y: lastPoint.y)
                 }
 
@@ -78,27 +88,26 @@ struct SparklineView: View {
                         ZStack {
                             // time view
                             VStack(spacing: 0) {
-                                Text("Today \(mockTime(for: clampedX / width))")
+                                Text("\(mockTime(for: clampedX / width))")
                                     .foregroundStyle(.gray)
                                     .padding(.vertical, 6)
                                     .padding(.horizontal, 8)
                                     .background(.gray.opacity(0.1), in: Capsule())
                                 Color.gray
                                     .opacity(0.3)
-                                    .frame(width: 1)
+                                    .frame(width: 1, height: 230)
                             }
                             .position(x: clampedX)
-                            .frame(height: .infinity, alignment: .bottom)
-                            .offset(y: 94)
+//                            .frame(height: .infinity, alignment: .bottom)
+                            .offset(y: 80)
 
                             Circle()
                                 .fill(Color.black)
-                                .frame(width: 18, height: 18)
+                                .frame(width: 16, height: 16)
                                 .position(x: clampedX, y: dotY)
                         }
                     }
                 }
-
             }
             .contentShape(Rectangle()) // makes entire view tappable
             .gesture(
@@ -106,14 +115,37 @@ struct SparklineView: View {
                     .onChanged { value in
                         isDragging = true
                         dragX = value.location.x
+                        
+                        // Calculate and send price update
+                        let clampedX = min(max(0, value.location.x), width)
+                        updatePrice(for: clampedX, width: width)
                     }
                     .onEnded { _ in
                         isDragging = false
                         dragX = nil
+                        
+                        // Reset to original values by sending nil (handled in parent)
+                        onPriceUpdate?(0, 0) // Special values to indicate reset
                     }
             )
-
         }
+    }
+    
+    /// Updates price based on drag position and calls callback
+    private func updatePrice(for x: CGFloat, width: CGFloat) {
+        let progress = x / width
+        let dataIndex = Int(progress * CGFloat(data.count - 1))
+        let clampedIndex = min(max(0, dataIndex), data.count - 1)
+        
+        // Get the price at this position
+        let priceAtPosition = data[clampedIndex]
+        
+        // Calculate percentage change from the first price point
+        guard let firstPrice = data.first, firstPrice > 0 else { return }
+        let percentage = ((priceAtPosition - firstPrice) / firstPrice) * 100
+        
+        // Send update to parent
+        onPriceUpdate?(priceAtPosition, percentage)
     }
 
     /// Approximates the Y position on a path for a given X by trimming and sampling
@@ -158,21 +190,25 @@ struct SparklineView: View {
     }
     
     private func mockTime(for progress: CGFloat) -> String {
-            let totalHours = 24
-            let hour = Int(progress * CGFloat(totalHours))
-            let displayHour = hour % 12 == 0 ? 12 : hour % 12
-            let suffix = hour < 12 ? "AM" : "PM"
-            return "\(displayHour) \(suffix)"
+        // Calculate actual date based on progress (assuming 7 days of hourly data = 168 data points)
+        let hoursAgo = Int((1.0 - progress) * 168) // 7 days * 24 hours
+        let date = Calendar.current.date(byAdding: .hour, value: -hoursAgo, to: Date()) ?? Date()
+        
+        let formatter = DateFormatter()
+        
+        if Calendar.current.isDateInToday(date) {
+            formatter.dateFormat = "h a"
+            return "Today \(formatter.string(from: date))"
+        } else if Calendar.current.isDateInYesterday(date) {
+            formatter.dateFormat = "h a"
+            return "Yesterday \(formatter.string(from: date))"
+        } else {
+            let daysAgo = Calendar.current.dateComponents([.day], from: date, to: Date()).day ?? 0
+            formatter.dateFormat = "h a"
+            return "\(daysAgo)d ago \(formatter.string(from: date))"
         }
-    
-    private func trimProgress(for x: CGFloat, in points: [CGPoint]) -> CGFloat {
-        guard let first = points.first?.x,
-              let last = points.last?.x,
-              last != first else { return 1 }
-        return (x - first) / (last - first)
     }
 }
-
 
 
 #Preview {

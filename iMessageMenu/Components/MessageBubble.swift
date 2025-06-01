@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct MessageBubble: View {
-    @EnvironmentObject var viewModel: MessageViewModel
-    
+    @Environment(MessageViewModel.self) var messageVM
+
     var msg: Message
     var animation: Namespace.ID
     var isSource: Bool = true //to prevent duplicate matched geometry animation
@@ -63,9 +63,9 @@ struct MessageBubble: View {
                         highlightedChat = nil
                     }
                     
-                    if let index = viewModel.messages.firstIndex(where: { $0.id == msg.id }) {
+                    if let index = messageVM.messages.firstIndex(where: { $0.id == msg.id }) {
                         withAnimation(.easeInOut.delay(0.3)) {
-                            viewModel.messages[index].emoji = emoji
+                            messageVM.messages[index].emoji = emoji
                         }
                     }
                 }

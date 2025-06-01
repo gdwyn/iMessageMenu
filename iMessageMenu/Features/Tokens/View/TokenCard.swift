@@ -8,18 +8,23 @@
 import SwiftUI
 
 struct TokenCard: View {
-    var token: Token
+    var coin: Coin
     
     var body: some View {
         HStack(spacing: 14) {
-            Image(token.icon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 48, height: 48)
-                .clipShape(.circle)
+            AsyncImage(url: URL(string: coin.image)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+            } placeholder: {
+                ProgressView()
+                    .frame(width: 40, height: 40)
+            }
             
             VStack(alignment: .leading) {
-                Text(token.name)
+                Text(coin.name)
                     .font(.headline)
                     .fontWeight(.medium)
                     .foregroundStyle(.textBlack)
@@ -33,22 +38,22 @@ struct TokenCard: View {
             Spacer()
             
             VStack(alignment: .leading) {
-                Text("$0.00")
+                Text(String(format: "$%.2f", coin.currentPrice))
                     .font(.headline)
                     .fontWeight(.regular)
                     .foregroundStyle(.textBlack)
                 
-                Text("9.78%")
+                Text("\(coin.priceChangePercentage)")
                     .font(.headline)
                     .fontWeight(.regular)
                     .foregroundStyle(.green)
             }
         }
         .padding()
-        .background(.gray.opacity(0.08), in: RoundedRectangle(cornerRadius: 24))
+        .background(.appGray, in: RoundedRectangle(cornerRadius: 24))
     }
 }
 
 #Preview {
-    TokenCard(token: Token(name: "eth", icon: "eth"))
+    TokenCard(coin: Coin(id: "", symbol: "", name: "Eth", image: "", currentPrice: 0.0, marketCap: 23, marketCapRank: 1, sparkLine: Sparkline(price: []), priceChangePercentage: 2.0))
 }

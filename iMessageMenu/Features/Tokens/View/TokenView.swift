@@ -8,32 +8,41 @@
 import SwiftUI
 
 struct TokenView: View {
-    @EnvironmentObject var tokenVM: TokenViewModel
+    @Environment(TokenViewModel.self) var tokenVM
     @Namespace var tokenAnimation
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                ScrollView {
+            VStack {
+                if let error = tokenVM.errorMsg {
                     VStack {
-                        ForEach(tokenVM.tokens) { token in
-                            NavigationLink(value: token) {
-                                TokenCard(token: token)
-                                    .matchedTransitionSource(id: token.id.uuidString, in: tokenAnimation)
+                        ProgressView(error)
+                    }
+                } else {
+                    VStack(spacing: 24) {
+                        ScrollView {
+                            VStack {
+                                ForEach(tokenVM.coins) { coin in
+                                    NavigationLink(value: coin) {
+                                        TokenCard(coin: coin)
+                                            .matchedTransitionSource(id: coin.id, in: tokenAnimation)
+                                    }
+                                }
                             }
                         }
+//                        .padding(.vertical)
+                        .scrollIndicators(.hidden)
                     }
+                    
                 }
-                .padding(.vertical)
-                .scrollIndicators(.hidden)
             }
             .padding(.horizontal)
             .navigationBarBackButtonHidden()
-            .navigationDestination(for: Token.self) { token in
-                TokenDetails(token: token)
-                    .navigationTransition(.zoom(sourceID: token.id.uuidString, in: tokenAnimation))
+            .navigationDestination(for: Coin.self) { coin in
+                TokenDetails(coin: coin)
+                    .navigationTransition(.zoom(sourceID: coin.id, in: tokenAnimation))
                     .onAppear {
-                        tokenVM.currentToken = token
+                        tokenVM.currentCoin = coin
                     }
             }
         }

@@ -10,7 +10,7 @@ import SwiftUI
 import AVKit
 
 @Observable
-class SpeechViewModel: ObservableObject {
+class SpeechViewModel {
     private var audioRecorder: AVAudioRecorder!
         private var timer: Timer?
         

@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct SpeechView: View {
-    @EnvironmentObject var speechVM: SpeechViewModel
-    @EnvironmentObject var messageVM: MessageViewModel
+    @Environment(SpeechViewModel.self) var speechVM
+    @Environment(MessageViewModel.self) var messageVM
     @State private var animate = false
     
     let barCount = 12
