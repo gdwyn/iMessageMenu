@@ -60,8 +60,8 @@ class TokenViewModel {
 
 
 
-struct Token: Identifiable, Hashable {
-    var id = UUID()
-    var name: String
-    var icon: String
-}
+//struct Token: Identifiable, Hashable {
+//    var id = UUID()
+//    var name: String
+//    var icon: String
+//}

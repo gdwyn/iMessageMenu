@@ -110,6 +110,12 @@ struct ChatView: View {
                         TokenView()
                     }
                 }
+                
+                ToolbarItem {
+                    NavigationLink("🗝️ OTP") {
+                        OTPView()
+                    }
+                }
             }
         }
     }

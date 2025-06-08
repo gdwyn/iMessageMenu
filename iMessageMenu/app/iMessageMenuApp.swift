@@ -12,6 +12,7 @@ struct iMessageMenuApp: App {
     @State var messageVM = MessageViewModel()
     @State var speechVM = SpeechViewModel()
     @State var tokenVM = TokenViewModel()
+    @State var otpVM = OTPViewModel()
 
     var body: some Scene {
         WindowGroup {
@@ -19,6 +20,7 @@ struct iMessageMenuApp: App {
                 .environment(messageVM)
                 .environment(speechVM)
                 .environment(tokenVM)
+                .environment(otpVM)
                 
         }
     }
